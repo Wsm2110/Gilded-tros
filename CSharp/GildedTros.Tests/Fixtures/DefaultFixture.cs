@@ -1,6 +1,6 @@
 ﻿using GildedTros.App;
 using GildedTros.Cli.Contracts;
-using GildedTros.Cli.Ruleset;
+using GildedTros.Cli.Domain;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;

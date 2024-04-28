@@ -1,10 +1,8 @@
 ﻿using FluentValidation;
-using GildedTros.Cli.Common;
-using GildedTros.Cli.Contracts;
 using GildedTros.Cli.Domain;
+using GildedTros.Cli.Contracts;
 using MediatR;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,12 +20,12 @@ namespace GildedTros.Cli.Features.ItemManagement
 
                 for (var i = 0; i < 31; i++)
                 {
-                    output.Append("-------- day " + i + " --------");
-                    output.Append("name, sellIn, quality");
+                    output.AppendLine("-------- day " + i + " --------");
+                    output.AppendLine("name, sellIn, quality");
 
                     for (var j = 0; j < items.Count; j++)
                     {
-                        output.Append(items[j]);
+                        output.AppendLine(items[j].ToString());
                     }
 
                     await mediator.Send(command);
@@ -55,20 +53,15 @@ namespace GildedTros.Cli.Features.ItemManagement
                 var validator = new CommandValidator();
                 if (!validator.Validate(request).IsValid)
                 {
+                    //TODO impl Resu
                     return default;
                 }
-
-                var orderedRuleset = ruleset.OrderBy(i => i.Order);
-
+                      
                 foreach (var item in request.Items)
                 {
                     foreach (var rule in ruleset)
                     {
-                        var next = rule.Apply(item);
-                        if (next == false)
-                        {
-                            break;
-                        }
+                        rule.Apply(item);
                     }
                 }
 

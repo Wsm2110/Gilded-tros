@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
-using GildedTros.Cli;
+using GildedTros.Cli.Contracts;
 using GildedTros.Cli.Domain;
 using GildedTros.Cli.Features.ItemManagement;
-using Stashbox;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GildedTros.App
 {
@@ -30,28 +31,37 @@ namespace GildedTros.App
                 new Item {Name = "Ugly Variable Names", SellIn = 3, Quality = 6}
             ];
 
-        private static StashboxContainer _container;
-
-        #endregion
-
-        #region Constructor
-
-        public Program()
-        {
-            // Create and configure the dependency injection container
-            Bootstrapper bootstrapper = new Bootstrapper();
-            bootstrapper.StartUp();
-            _container = bootstrapper.Container;
-        }
-
         #endregion
 
         #region Methods
 
+        public static ServiceProvider StartUp(ServiceCollection services)
+        {
+            // Register MediatR
+            services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(Program).Assembly)); // Startup is your application's entry point
+
+            // Setup entrypoint
+            services.AddSingleton<ItemUpdateFeature.EntryPoint>();
+
+            // Define ruleset 
+            services.AddSingleton<IList<IRule>>(p => p.GetServices<IRule>().ToList());
+
+            var rules = typeof(Program).Assembly.GetTypes().Where(x => !x.IsAbstract && x.IsClass && x.GetInterface(nameof(IRule)) == typeof(IRule));
+
+            foreach (var rule in rules)
+            {
+                services.Add(new ServiceDescriptor(typeof(IRule), rule, ServiceLifetime.Singleton));
+            }
+
+            return services.BuildServiceProvider();
+        }
+
         public static async Task Main(string[] args)
         {
-            var entryPoint = _container.Resolve<ItemUpdateFeature.EntryPoint>();
-            await entryPoint.Process(Items);
+            var provider = StartUp(new ServiceCollection());
+            var entryPoint = provider.GetRequiredService<ItemUpdateFeature.EntryPoint>();
+            var output = await entryPoint.Process(Items);
+            Console.WriteLine(output);
         }
 
         #endregion
