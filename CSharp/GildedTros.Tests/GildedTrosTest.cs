@@ -1,136 +1,164 @@
 ﻿using GildedTros.Cli.Domain;
+using GildedTros.Cli.Features.ItemManagement;
+using GildedTros.Tests.Fixtures;
 using System.Collections.Generic;
 using Xunit;
+using Xunit.Abstractions;
+using static GildedTros.Cli.Features.ItemManagement.ItemUpdateFeature;
 
 namespace GildedTros.App
 {
-    public class GildedTrosTest : 
+    public class GildedTrosTest : IClassFixture<MediatRFixture>
     {
-        [Fact]
-        public void ShouldGoThroughTheNormalFlow()
+        MediatRFixture _fixture;
+
+        public GildedTrosTest(MediatRFixture fixture)
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "Ring of Cleansening Code", SellIn = 3, Quality = 4 } };
-            GildedTros app = new GildedTros(Items);
-
-            app.UpdateQuality();
-
-            Assert.Equal("Ring of Cleansening Code", Items[0].Name);
-            Assert.Equal(2, Items[0].SellIn);
-            Assert.Equal(3, Items[0].Quality);
-
+            _fixture = fixture;
         }
 
         [Fact]
-        public void ShouldLowerTheQualityDoubleAsFastWhenSellInisUnderZero()
+        public async Task ShouldGoThroughTheNormalFlow()
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "Ring of Cleansening Code", SellIn = -1, Quality = 4 } };
-            GildedTros app = new GildedTros(Items);
+            // Arrange
+            var items = new List<Item> { new Item { Name = "Ring of Cleansening Code", SellIn = 3, Quality = 4 } };
+            var command = new ItemUpdateFeature.Command(items);
 
-            app.UpdateQuality();
+            // Act
+            await _fixture.Mediator.Send(command);
 
-            Assert.Equal("Ring of Cleansening Code", Items[0].Name);
-            Assert.Equal(-2, Items[0].SellIn);
-            Assert.Equal(2, Items[0].Quality);
-
+            // Assert
+            Assert.Equal("Ring of Cleansening Code", items[0].Name);
+            Assert.Equal(2, items[0].SellIn);
+            Assert.Equal(3, items[0].Quality);
         }
 
         [Fact]
-        public void ShouldNeverLowerTheQualityUnderZero()
+        public async Task ShouldLowerTheQualityDoubleAsFastWhenSellInisUnderZero()
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "Ring of Cleansening Code", SellIn = 0, Quality = 0 } };
-            GildedTros app = new GildedTros(Items);
+            // Arrange 
+            var items = new List<Item> { new Item { Name = "Ring of Cleansening Code", SellIn = -1, Quality = 4 } };
+            var command = new ItemUpdateFeature.Command(items);
 
-            app.UpdateQuality();
+            // Act
+            await _fixture.Mediator.Send(command);
 
-            Assert.Equal("Ring of Cleansening Code", Items[0].Name);
-            Assert.Equal(-1, Items[0].SellIn);
-            Assert.Equal(0, Items[0].Quality);
-
+            // Assert
+            Assert.Equal("Ring of Cleansening Code", items[0].Name);
+            Assert.Equal(-2, items[0].SellIn);
+            Assert.Equal(2, items[0].Quality);
         }
 
         [Fact]
-        public void ShouldIncreaseGoodWinesQualityWhenSellInDrops()
+        public async Task ShouldNeverLowerTheQualityUnderZero()
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "Good Wine", SellIn = 2, Quality = 3 } };
-            GildedTros app = new GildedTros(Items);
+            // Arrage
+            var items = new List<Item> { new Item { Name = "Ring of Cleansening Code", SellIn = 0, Quality = 0 } };
+            var command = new ItemUpdateFeature.Command(items);
 
-            app.UpdateQuality();
+            // Act
+            await _fixture.Mediator.Send(command);
 
-            Assert.Equal("Good Wine", Items[0].Name);
-            Assert.Equal(1, Items[0].SellIn);
-            Assert.Equal(4, Items[0].Quality);
-
+            // Assert
+            Assert.Equal("Ring of Cleansening Code", items[0].Name);
+            Assert.Equal(-1, items[0].SellIn);
+            Assert.Equal(0, items[0].Quality);
         }
 
         [Fact]
-        public void ShouldNeverIncreaseQualityAboveFifty()
+        public async Task ShouldIncreaseGoodWinesQualityWhenSellInDrops()
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "Good Wine", SellIn = 2, Quality = 50 } };
-            GildedTros app = new GildedTros(Items);
+            // Arrange
+            var items = new List<Item> { new Item { Name = "Good Wine", SellIn = 2, Quality = 3 } };
+            var command = new ItemUpdateFeature.Command(items);
 
-            app.UpdateQuality();
+            // Act
+            await _fixture.Mediator.Send(command);
 
-            Assert.Equal("Good Wine", Items[0].Name);
-            Assert.Equal(1, Items[0].SellIn);
-            Assert.Equal(50, Items[0].Quality);
-
+            // Assert
+            Assert.Equal("Good Wine", items[0].Name);
+            Assert.Equal(1, items[0].SellIn);
+            Assert.Equal(4, items[0].Quality);
         }
 
         [Fact]
-        public void ShouldIncreaseQualityForVeryInterestingConferences()
+        public async Task ShouldNeverIncreaseQualityAboveFifty()
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes for Re:factor", SellIn = 20, Quality = 32 } };
-            GildedTros app = new GildedTros(Items);
+            // Assign
+            var items = new List<Item> { new Item { Name = "Good Wine", SellIn = 2, Quality = 50 } };
+            var command = new ItemUpdateFeature.Command(items);
 
-            app.UpdateQuality();
+            // Act
+            await _fixture.Mediator.Send(command);
 
-            Assert.Equal("Backstage passes for Re:factor", Items[0].Name);
-            Assert.Equal(19, Items[0].SellIn);
-            Assert.Equal(33, Items[0].Quality);
-
+            // Assert
+            Assert.Equal("Good Wine", items[0].Name);
+            Assert.Equal(1, items[0].SellIn);
+            Assert.Equal(50, items[0].Quality);
         }
 
         [Fact]
-        public void ShouldIncreaseQualityForVeryInterestingConferencesByTwoWhenSellInIsUnderOrEqualToTen()
+        public async Task ShouldIncreaseQualityForVeryInterestingConferences()
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes for Re:factor", SellIn = 10, Quality = 32 } };
-            GildedTros app = new GildedTros(Items);
+            // Assign
+            var items = new List<Item> { new Item { Name = "Backstage passes for Re:factor", SellIn = 20, Quality = 32 } };
+            var command = new ItemUpdateFeature.Command(items);
 
-            app.UpdateQuality();
+            // Act
+            await _fixture.Mediator.Send(command);
 
-            Assert.Equal("Backstage passes for Re:factor", Items[0].Name);
-            Assert.Equal(9, Items[0].SellIn);
-            Assert.Equal(34, Items[0].Quality);
-
+            // Assert
+            Assert.Equal("Backstage passes for Re:factor", items[0].Name);
+            Assert.Equal(19, items[0].SellIn);
+            Assert.Equal(33, items[0].Quality);
         }
 
         [Fact]
-        public void ShouldIncreaseQualityForVeryInterestingConferencesByThreeWhenSellInIsUnderOrEqualToFive()
+        public async Task ShouldIncreaseQualityForVeryInterestingConferencesByTwoWhenSellInIsUnderOrEqualToTen()
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes for Re:factor", SellIn = 5, Quality = 32 } };
-            GildedTros app = new GildedTros(Items);
+            // Assign
+            var items = new List<Item> { new Item { Name = "Backstage passes for Re:factor", SellIn = 10, Quality = 32 } };
+            var command = new ItemUpdateFeature.Command(items);
 
-            app.UpdateQuality();
+            // Act
+            await _fixture.Mediator.Send(command);
 
-            Assert.Equal("Backstage passes for Re:factor", Items[0].Name);
-            Assert.Equal(4, Items[0].SellIn);
-            Assert.Equal(35, Items[0].Quality);
-
+            // Assert
+            Assert.Equal("Backstage passes for Re:factor", items[0].Name);
+            Assert.Equal(9, items[0].SellIn);
+            Assert.Equal(34, items[0].Quality);
         }
 
         [Fact]
-        public void ShouldLowerQuantityToZeroForVeryInterestingConferencesWhenSellInIsNegative()
+        public async Task ShouldIncreaseQualityForVeryInterestingConferencesByThreeWhenSellInIsUnderOrEqualToFive()
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes for Re:factor", SellIn = 0, Quality = 32 } };
-            GildedTros app = new GildedTros(Items);
+            // Assign
+            var items = new List<Item> { new Item { Name = "Backstage passes for Re:factor", SellIn = 5, Quality = 32 } };
+            var command = new ItemUpdateFeature.Command(items);
 
-            app.UpdateQuality();
+            // Act
+            await _fixture.Mediator.Send(command);
 
-            Assert.Equal("Backstage passes for Re:factor", Items[0].Name);
-            Assert.Equal(-1, Items[0].SellIn);
-            Assert.Equal(0, Items[0].Quality);
-
+            // Assert
+            Assert.Equal("Backstage passes for Re:factor", items[0].Name);
+            Assert.Equal(4, items[0].SellIn);
+            Assert.Equal(35, items[0].Quality);
         }
 
+        [Fact]
+        public async Task ShouldLowerQuantityToZeroForVeryInterestingConferencesWhenSellInIsNegative()
+        {
+            // Assign
+            var items = new List<Item> { new Item { Name = "Backstage passes for Re:factor", SellIn = 0, Quality = 32 } };
+            var command = new ItemUpdateFeature.Command(items);
+
+            // Act
+            await _fixture.Mediator.Send(command);
+
+            // Assert
+            Assert.Equal("Backstage passes for Re:factor", items[0].Name);
+            Assert.Equal(-1, items[0].SellIn);
+            Assert.Equal(0, items[0].Quality);
+        }
     }
 }

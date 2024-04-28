@@ -13,8 +13,6 @@ namespace GildedTros.Cli
 
     public class WrappingWriter : TextWriter
     {
-
-
         public override Encoding Encoding => Encoding.UTF8;
     }
 

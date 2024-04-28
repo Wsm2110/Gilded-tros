@@ -5,39 +5,41 @@ using GildedTros.Cli.Domain;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace GildedTros.Cli.Features.ItemManagement
 {
-    public static class UpdateFeature
+    public static class ItemUpdateFeature
     {
+        private const string AgedBrie = "Aged Brie";
+        private const string BackStage = "Backstage passes to a TAFKAL80ETC concert";
+
         internal class EntryPoint(IMediator mediator)
         {
             public async Task<string> Process(IList<Item> items)
             {                
                 var command = new Command(items);
+                var output = new StringBuilder();
 
                 for (var i = 0; i < 31; i++)
                 {
-                    Console.WriteLine("-------- day " + i + " --------");
-                    Console.WriteLine("name, sellIn, quality");
+                    output.Append("-------- day " + i + " --------");
+                    output.Append("name, sellIn, quality");
 
                     for (var j = 0; j < items.Count; j++)
                     {
-                        Console.WriteLine(items[j]);
+                        output.Append(items[j]);
                     }
 
                     await mediator.Send(command);
                 }
 
-                return string.Empty;
+                return output.ToString();
             }
         }
-
-        private const string AgedBrie = "Aged Brie";
-        private const string BackStage = "Backstage passes to a TAFKAL80ETC concert";
-
+          
         internal class CommandValidator : AbstractValidator<Command>
         {
             public CommandValidator()

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using GildedTros.Cli;
 using GildedTros.Cli.Domain;
 using GildedTros.Cli.Features.ItemManagement;
-using Microsoft.Extensions.DependencyInjection;
 using Stashbox;
 
 namespace GildedTros.App
@@ -14,6 +13,7 @@ namespace GildedTros.App
     {
         #region Fields
 
+        // Static list of items to manage in the inventory
         private static IList<Item> Items = [
 
                 new Item {Name = "Ring of Cleansening Code", SellIn = 10, Quality = 20},
@@ -28,25 +28,29 @@ namespace GildedTros.App
                 new Item {Name = "Duplicate Code", SellIn = 3, Quality = 6},
                 new Item {Name = "Long Methods", SellIn = 3, Quality = 6},
                 new Item {Name = "Ugly Variable Names", SellIn = 3, Quality = 6}
-
             ];
 
         private static StashboxContainer _container;
 
         #endregion
 
-        #region Methods
+        #region Constructor
 
-        static Program() 
+        public Program()
         {
+            // Create and configure the dependency injection container
             Bootstrapper bootstrapper = new Bootstrapper();
             bootstrapper.StartUp();
             _container = bootstrapper.Container;
         }
 
+        #endregion
+
+        #region Methods
+
         public static async Task Main(string[] args)
-        {   
-            var entryPoint = _container.Resolve<UpdateFeature.EntryPoint>();
+        {
+            var entryPoint = _container.Resolve<ItemUpdateFeature.EntryPoint>();
             await entryPoint.Process(Items);
         }
 
