@@ -4,7 +4,7 @@ using Xunit;
 
 namespace GildedTros.App
 {
-    public class GildedTrosTest
+    public class GildedTrosTest : 
     {
         [Fact]
         public void ShouldGoThroughTheNormalFlow()

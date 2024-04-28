@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using GildedTros.Cli;
 using GildedTros.Cli.Domain;
+using GildedTros.Cli.Features.ItemManagement;
+using Microsoft.Extensions.DependencyInjection;
+using Stashbox;
 
 namespace GildedTros.App
 {
     public class Program
     {
-        public static void Main(string[] args)
-        {
-            Console.WriteLine("OMGHAI!");
+        #region Fields
 
-            IList<Item> Items = new List<Item>{
+        private static IList<Item> Items = [
+
                 new Item {Name = "Ring of Cleansening Code", SellIn = 10, Quality = 20},
                 new Item {Name = "Good Wine", SellIn = 2, Quality = 0},
                 new Item {Name = "Elixir of the SOLID", SellIn = 5, Quality = 7},
@@ -23,22 +28,28 @@ namespace GildedTros.App
                 new Item {Name = "Duplicate Code", SellIn = 3, Quality = 6},
                 new Item {Name = "Long Methods", SellIn = 3, Quality = 6},
                 new Item {Name = "Ugly Variable Names", SellIn = 3, Quality = 6}
-            };
 
-            var app = new GildedTros(Items);
+            ];
 
+        private static StashboxContainer _container;
 
-            for (var i = 0; i < 31; i++)
-            {
-                Console.WriteLine("-------- day " + i + " --------");
-                Console.WriteLine("name, sellIn, quality");
-                for (var j = 0; j < Items.Count; j++)
-                {
-                    System.Console.WriteLine(Items[j].Name + ", " + Items[j].SellIn + ", " + Items[j].Quality);
-                }
-                Console.WriteLine("");
-                app.UpdateQuality();
-            }
+        #endregion
+
+        #region Methods
+
+        static Program() 
+        {
+            Bootstrapper bootstrapper = new Bootstrapper();
+            bootstrapper.StartUp();
+            _container = bootstrapper.Container;
         }
+
+        public static async Task Main(string[] args)
+        {   
+            var entryPoint = _container.Resolve<UpdateFeature.EntryPoint>();
+            await entryPoint.Process(Items);
+        }
+
+        #endregion
     }
 }
