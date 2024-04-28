@@ -1,12 +1,15 @@
 ﻿using GildedTros.App;
+using GildedTros.Cli.Contracts;
+using GildedTros.Cli.Ruleset;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 
 namespace GildedTros.Tests.Fixtures
 {
 
-    public class MediatRFixture: IDisposable
+    public class MediatRFixture : IDisposable
     {
         private bool disposedValue;
 
@@ -21,6 +24,17 @@ namespace GildedTros.Tests.Fixtures
             // Register MediatR
             services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(Program).Assembly)); // Startup is your application's entry point
 
+
+            services.AddSingleton<IList<IRule>>(p => p.GetServices<IRule>().ToList());
+
+            var rules = typeof(Program).Assembly.GetTypes().Where(x => !x.IsAbstract && x.IsClass && x.GetInterface(nameof(IRule)) == typeof(IRule));
+
+            foreach (var rule in rules)
+            {
+                services.Add(new ServiceDescriptor(typeof(IRule), rule, ServiceLifetime.Singleton));
+                // Replace Transient with whatever lifetime you need
+            }
+
             // Register other dependencies
 
             var serviceProvider = services.BuildServiceProvider();
@@ -33,7 +47,7 @@ namespace GildedTros.Tests.Fixtures
             {
                 if (disposing)
                 {
-                   
+
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

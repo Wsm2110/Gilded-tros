@@ -1,10 +1,6 @@
 ﻿using GildedTros.Cli.Domain;
 using GildedTros.Cli.Features.ItemManagement;
 using GildedTros.Tests.Fixtures;
-using System.Collections.Generic;
-using Xunit;
-using Xunit.Abstractions;
-using static GildedTros.Cli.Features.ItemManagement.ItemUpdateFeature;
 
 namespace GildedTros.App
 {
@@ -66,6 +62,21 @@ namespace GildedTros.App
         }
 
         [Fact]
+        public async Task ShouldNeverIncreaseQualityAbove50()
+        {
+            // Arrage
+            var items = new List<Item> { new Item { Name = "Ring of Cleansening Code", SellIn = 50, Quality = 100 } };
+            var command = new ItemUpdateFeature.Command(items);
+
+            // Act
+            await _fixture.Mediator.Send(command);
+
+            // Assert
+            Assert.Equal("Ring of Cleansening Code", items[0].Name);  
+            Assert.Equal(50, items[0].Quality);
+        }
+
+        [Fact]
         public async Task ShouldIncreaseGoodWinesQualityWhenSellInDrops()
         {
             // Arrange
@@ -85,7 +96,7 @@ namespace GildedTros.App
         public async Task ShouldNeverIncreaseQualityAboveFifty()
         {
             // Assign
-            var items = new List<Item> { new Item { Name = "Good Wine", SellIn = 2, Quality = 50 } };
+            var items = new List<Item> { new Item { Name = "Good Wine", SellIn = 2, Quality = 60 } };
             var command = new ItemUpdateFeature.Command(items);
 
             // Act
@@ -98,7 +109,7 @@ namespace GildedTros.App
         }
 
         [Fact]
-        public async Task ShouldIncreaseQualityForVeryInterestingConferences()
+        public async Task ShoulQualityDecreasesForVeryInterestingConferenceswhileSellinIsAboveTen()
         {
             // Assign
             var items = new List<Item> { new Item { Name = "Backstage passes for Re:factor", SellIn = 20, Quality = 32 } };
@@ -110,7 +121,7 @@ namespace GildedTros.App
             // Assert
             Assert.Equal("Backstage passes for Re:factor", items[0].Name);
             Assert.Equal(19, items[0].SellIn);
-            Assert.Equal(33, items[0].Quality);
+            Assert.Equal(31, items[0].Quality);
         }
 
         [Fact]
