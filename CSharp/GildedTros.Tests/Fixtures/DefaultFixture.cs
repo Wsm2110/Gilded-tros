@@ -1,4 +1,5 @@
-﻿using GildedTros.App;
+﻿using FluentValidation;
+using GildedTros.App;
 using GildedTros.Cli.Contracts;
 using GildedTros.Cli.Domain;
 using MediatR;
@@ -23,6 +24,7 @@ namespace GildedTros.Tests.Fixtures
 
             // Register MediatR
             services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(Program).Assembly)); // Startup is your application's entry point
+            services.AddValidatorsFromAssemblies(new[] { typeof(Program).Assembly }, ServiceLifetime.Singleton, null, true);
 
 
             services.AddSingleton<IList<IRule>>(p => p.GetServices<IRule>().ToList());

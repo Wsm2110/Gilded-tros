@@ -11,6 +11,9 @@ namespace GildedTros.App
     public class ApprovalTest
     {
         [Fact]
+        // - Note that legendaries and backstage passes act differently since the refactoring.
+        // - Legendary item requirement never states that the 'sellin' is static and wont change, only quality.
+        // - Backstage passes while sellin is larger than 10 shouldn`t increase the quality, however this was the general rule before the refactoring
         public async Task ThirtyDays()
         {
             var fakeoutput = new StringBuilder();

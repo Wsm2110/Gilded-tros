@@ -1,14 +1,15 @@
 ﻿using GildedTros.Cli.Domain;
 
-namespace GildedTros.Cli.Contracts
+namespace GildedTros.Cli.Contracts;
+
+public interface IRule
 {
-    public interface IRule
-    {  
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns>Indicates if we need to apply the next rule or just stop</returns>
-        void Apply(Item item);
-    }
+    /// <summary>
+    /// Applies the rule logic to a given Item object.
+    /// </summary>
+    /// <param name="item">The Item object to which the rule should be applied.</param>
+    /// <returns>
+    /// Indicates whether subsequent rules in the ruleset should be applied to the item.
+    /// </returns>
+    void Apply(Item item);
 }

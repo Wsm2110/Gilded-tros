@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
 using GildedTros.Cli.Contracts;
 using GildedTros.Cli.Domain;
 using GildedTros.Cli.Features.ItemManagement;
@@ -35,10 +36,16 @@ namespace GildedTros.App
 
         #region Methods
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
         public static ServiceProvider StartUp(ServiceCollection services)
         {
             // Register MediatR
             services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(Program).Assembly)); // Startup is your application's entry point
+            services.AddValidatorsFromAssemblies(new[] { typeof(Program).Assembly }, ServiceLifetime.Singleton, null, true);
 
             // Setup entrypoint
             services.AddSingleton<ItemUpdateFeature.EntryPoint>();
@@ -56,6 +63,11 @@ namespace GildedTros.App
             return services.BuildServiceProvider();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public static async Task Main(string[] args)
         {
             var provider = StartUp(new ServiceCollection());

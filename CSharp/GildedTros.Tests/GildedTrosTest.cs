@@ -171,5 +171,35 @@ namespace GildedTros.App
             Assert.Equal(-1, items[0].SellIn);
             Assert.Equal(0, items[0].Quality);
         }
+
+        [Fact]
+        public async Task ShouldLowerSellinOfLegendariesBeyondZero()
+        {
+            // Assign
+            var items = new List<Item> { new Item { Name = "B-DAWG Keychain", SellIn = 0, Quality = 80 } };
+            var command = new ItemUpdateFeature.Command(items);
+
+            // Act
+            await _fixture.Mediator.Send(command);
+
+            // Assert      
+            Assert.Equal(-1, items[0].SellIn);
+            Assert.Equal(80, items[0].Quality);
+        }
+
+        [Fact]
+        public async Task ShouldKeepQualityOfLegendaryItemsOnceSellinBeyondZero()
+        {
+            // Assign
+            var items = new List<Item> { new Item { Name = "B-DAWG Keychain", SellIn = -1, Quality = 80 } };
+            var command = new ItemUpdateFeature.Command(items);
+
+            // Act
+            await _fixture.Mediator.Send(command);
+
+            // Assert      
+            Assert.Equal(-2, items[0].SellIn);
+            Assert.Equal(80, items[0].Quality);
+        }
     }
 }

@@ -185,7 +185,7 @@ namespace GildedTros.Cli.Domain
             public void Apply(Item item)
             {
                 if (item.Name == "B-DAWG Keychain")
-                {
+                {                              
                     item.Quality = 80;
                 }
             }
